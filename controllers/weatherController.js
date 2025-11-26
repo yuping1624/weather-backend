@@ -5,11 +5,11 @@ const CWA_API_BASE_URL = "https://opendata.cwa.gov.tw/api";
 const CWA_API_KEY = process.env.CWA_API_KEY;
 
 /**
- * 取得高雄天氣預報
+ * 取得新北天氣預報
  * CWA 氣象資料開放平臺 API
  * 使用「一般天氣預報-今明 36 小時天氣預報」資料集
  */
-const getKaohsiungWeather = async (req, res) => {
+const getNewtaipeiWeather = async (req, res) => {
   try {
     // 檢查是否有設定 API Key
     if (!CWA_API_KEY) {
@@ -31,13 +31,13 @@ const getKaohsiungWeather = async (req, res) => {
       }
     );
 
-    // 取得高雄市的天氣資料
+    // 取得新北市的天氣資料
     const locationData = response.data.records.location[0];
 
     if (!locationData) {
       return res.status(404).json({
         error: "查無資料",
-        message: "無法取得高雄市天氣資料",
+        message: "無法取得新北市天氣資料",
       });
     }
 
@@ -116,5 +116,5 @@ const getKaohsiungWeather = async (req, res) => {
 };
 
 module.exports = {
-  getKaohsiungWeather,
+  getNewtaipeiWeather,
 };
