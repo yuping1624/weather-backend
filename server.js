@@ -16,8 +16,15 @@ app.get("/", (req, res) => {
   res.json({
     message: "歡迎使用 CWA 天氣預報 API",
     endpoints: {
-      newtaipei: "/api/weather/newtaipei",
       health: "/api/health",
+      supportedCities: "/api/weather/cities",
+      singleCity: "/api/weather/city/:city",
+      multipleCities: "/api/weather/multiple?cities=臺北市,新北市",
+      newtaipei: "/api/weather/newtaipei",
+    },
+    examples: {
+      singleCity: "/api/weather/city/臺北市",
+      multipleCities: "/api/weather/multiple?cities=臺北市,新北市,桃園市",
     },
   });
 });

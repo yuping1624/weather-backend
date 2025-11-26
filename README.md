@@ -1,11 +1,11 @@
 # CWA 天氣預報 API 服務
 
-這是一個使用 Node.js + Express 開發的天氣預報 API 服務，串接中央氣象署（CWA）開放資料平台，提供新北市天氣預報資料。
+這是一個使用 Node.js + Express 開發的天氣預報 API 服務，串接中央氣象署（CWA）開放資料平台，提供台灣不同地區天氣預報資料。
 
 ## 功能特色
 
 - ✅ 串接 CWA 氣象資料開放平台
-- ✅ 取得新北市 36 小時天氣預報
+- ✅ 取得台灣不同縣市 36 小時天氣預報
 - ✅ 環境變數管理
 - ✅ RESTful API 設計
 - ✅ CORS 支援
@@ -72,8 +72,11 @@ GET /
 {
   "message": "歡迎使用 CWA 天氣預報 API",
   "endpoints": {
-    "newtaipei": "/api/weather/newtaipei",
-    "health": "/api/health"
+    "health": "/api/health",
+    "supportedCities": "/api/weather/cities",
+    "singleCity": "/api/weather/city/:city",
+    "multipleCities": "/api/weather/multiple?cities=臺北市,新北市",
+    "newtaipei": "/api/weather/newtaipei"
   }
 }
 ```
@@ -93,10 +96,36 @@ GET /api/health
 }
 ```
 
-### 3. 取得新北天氣預報
+### 3. 取得支援的城市列表
 
 ```
-GET /api/weather/newtaipei
+GET /api/weather/cities
+```
+
+回應：
+
+```json
+{
+  "success": true,
+  "data": {
+    "cities": ["臺北市", "新北市", "桃園市", ...],
+    "count": 22
+  }
+}
+```
+
+### 4. 取得單一城市天氣預報
+
+```
+GET /api/weather/city/:city
+```
+
+範例：
+
+```
+GET /api/weather/city/臺北市
+GET /api/weather/city/新北市
+GET /api/weather/city/桃園市
 ```
 
 回應範例：
@@ -105,7 +134,7 @@ GET /api/weather/newtaipei
 {
   "success": true,
   "data": {
-    "city": "新北市",
+    "city": "臺北市",
     "updateTime": "資料更新時間說明",
     "forecasts": [
       {
@@ -123,15 +152,117 @@ GET /api/weather/newtaipei
 }
 ```
 
+### 5. 取得多個城市天氣預報
+
+```
+GET /api/weather/multiple?cities=城市1,城市2,城市3
+```
+
+範例：
+
+```
+GET /api/weather/multiple?cities=臺北市,新北市,桃園市
+```
+
+回應範例：
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "city": "臺北市",
+      "updateTime": "資料更新時間說明",
+      "forecasts": [...]
+    },
+    {
+      "city": "新北市",
+      "updateTime": "資料更新時間說明",
+      "forecasts": [...]
+    }
+  ],
+  "count": {
+    "total": 3,
+    "success": 3,
+    "failed": 0
+  }
+}
+```
+
+### 6. 取得新北市天氣預報（舊端點，向後兼容）
+
+```
+GET /api/weather/newtaipei
+```
+
+回應格式與單一城市相同。
+
+## 測試 API
+
+### 方法 1: 使用測試腳本（推薦）
+
+#### Node.js 測試腳本
+
+```bash
+# 確保服務器正在運行
+npm run dev
+
+# 在另一個終端執行測試
+node test-api.js
+```
+
+#### Bash 測試腳本
+
+```bash
+# 確保服務器正在運行
+npm run dev
+
+# 在另一個終端執行測試（需要安裝 jq）
+./test-api.sh
+```
+
+### 方法 2: 使用 curl
+
+```bash
+# 健康檢查
+curl http://localhost:3000/api/health
+
+# 取得支援的城市列表
+curl http://localhost:3000/api/weather/cities
+
+# 取得單一城市天氣
+curl http://localhost:3000/api/weather/city/臺北市
+
+# 取得多個城市天氣
+curl "http://localhost:3000/api/weather/multiple?cities=臺北市,新北市,桃園市"
+```
+
+### 方法 3: 使用瀏覽器
+
+直接在瀏覽器中訪問：
+
+- `http://localhost:3000/api/health`
+- `http://localhost:3000/api/weather/cities`
+- `http://localhost:3000/api/weather/city/臺北市`
+- `http://localhost:3000/api/weather/multiple?cities=臺北市,新北市`
+
+### 方法 4: 使用 Postman 或 Thunder Client
+
+1. 建立新的 GET 請求
+2. 輸入 URL：`http://localhost:3000/api/weather/city/臺北市`
+3. 發送請求
+
 ## 專案結構
 
 ```
-backend/
+weather-backend/
 ├── server.js                 # Express 伺服器主檔案
 ├── controllers/
 │   └── weatherController.js  # 天氣控制器
 ├── routes/
 │   └── weather.js           # 天氣路由
+├── test-api.js              # Node.js 測試腳本
+├── test-api.sh              # Bash 測試腳本
 ├── .env                     # 環境變數（不納入版控）
 ├── .env.example             # 環境變數範本
 ├── .gitignore              # Git 忽略檔案
